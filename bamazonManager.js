@@ -17,16 +17,7 @@ inquirer.prompt([
 	}
 ]).then(answer => {
 	if(answer.Actions === "View products for sale"){
-		console.log("Accessing database...");
-		connection.connect();
-
-		connection.query('SELECT * FROM bamazon.products', function(error, results, fields) {
-			if (error) throw error;
-			for (i = 0; i < results.length; i++) {
-				console.log("ID #: " + results[i].item_id + " Item: " + results[i].product_name + " Department: " + results[i].department_name + " Price: " + results[i].price + " Quantity: " + results[i].stock_quantity);
-			}
-
-		});
+		showItems();
 	}
 	if(answer.Actions === "View low inventory"){
 
@@ -85,17 +76,57 @@ console.log("ID #: " + results[0].item_id + " Item: " + results[0].product_name 
 
 	}
 	if(answer.Actions === "Add new product"){
-		console.log("Accessing database...");
 
-		connection.connect();
-		connection.query('INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES (?)', [], function(error, results, fields) {
-			if (error) throw error;
+		inquirer.prompt([
+			{
+				message: "What item would you like to add?",
+				name: "Item",
+				type: "input"
+			},
+			{
+				message: "Which department?",
+				name: "Department",
+				type:"input"
+			},
+			{
+				message: "At what price?",
+				name: "Price",
+				type: "input"
+			},
+			{
+				message: "How many?",
+				name: "Quantity",
+				type: "Input"
+			}
+		]).then(inputs => {
 
 
+
+			connection.query('INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES (?, ?, ?, ?)', [inputs.Item, inputs.Department, inputs.Price, inputs.Quantity], function(error, results, fields) {
+				if (error) throw error;
+
+		})
+
+
+		showItems();
 	});
 
 	}
 })
+
+function showItems(){
+
+	console.log("Accessing database...");
+	
+
+	connection.query('SELECT * FROM bamazon.products', function(error, results, fields) {
+		if (error) throw error;
+		for (i = 0; i < results.length; i++) {
+			console.log("ID #: " + results[i].item_id + " Item: " + results[i].product_name + " Department: " + results[i].department_name + " Price: " + results[i].price + " Quantity: " + results[i].stock_quantity);
+		}
+
+	});
+}
 
 
 
