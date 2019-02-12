@@ -27,9 +27,32 @@ function prompt() {
 			return;
 
 		}
-		inquiry(answer.ID, answer.Quantity);
+
+		connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [answer.ID], function(error, item, fields) {
+			if (error) throw error;
+			if (answer.Quantity > item[0].stock_quantity) {
+				console.log("Insufficient quantity!");
+				return;
+
+			}
+			let q = item[0].stock_quantity;
+			inquiry(answer.ID, answer.Quantity, q);
+		});
+
+
 	});
 }
+
+function inquiry(id, answerQ, initialQ) {
+
+
+	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [initialQ -= answerQ, id], function(error, newQ) {
+		console.log("Success!");
+	});
+	showItem(id);
+
+
+};
 
 function sql() {
 	console.log("Accessing database...");
@@ -46,35 +69,15 @@ function sql() {
 
 
 
-function inquiry(id, q) {
-	connection.query('SELECT * FROM bamazon.products', function(error, item, fields) {
-		if (error) throw error;
-		if (q > item[0].stock_quantity) {
-			console.log("Insufficient quantity!");
-			return;
 
-		}
-		console.log("Proccessing transaction...");
-		connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [item[0].stock_quantity -= q, id], function(error, newQ){
-		console.log("Success!");
-		});
+
+
+function showItem(newId) {
+	connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [newId], function(error, newItem) {
+		if (error) throw error;
+
+		console.log("ID #: " + newItem[0].item_id + " Item: " + newItem[0].product_name + " Department: " + newItem[0].department_name + " Price: " + newItem[0].price + " Quantity: " + newItem[0].stock_quantity);
 
 	});
-
-
-
-		showItem(id);
-
-
-	};
-
-
-	function showItem(newId){
-		connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [newId], function(error, newItem) {
-			if (error) throw error;
-
-	console.log("ID #: " + newItem[0].item_id + " Item: " + newItem[0].product_name + " Department: " + newItem[0].department_name + " Price: " + newItem[0].price + " Quantity: " + newItem[0].stock_quantity);
-
-		});
-connection.end();
-	}
+	connection.end();
+}
