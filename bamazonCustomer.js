@@ -7,7 +7,19 @@ let connection = mysql.createConnection({
 	password: 'password',
 	database: 'bamazon'
 });
-sql();
+
+console.log("Accessing database...");
+connection.connect();
+
+connection.query('SELECT * FROM bamazon.products', function(error, results, fields) {
+	if (error) throw error;
+	for (i = 0; i < results.length; i++) {
+		console.log("ID #: " + results[i].item_id + " Item: " + results[i].product_name + " Department: " + results[i].department_name + " Price: " + results[i].price + " Quantity: " + results[i].stock_quantity);
+	}
+
+});
+
+
 prompt();
 
 function prompt() {
@@ -30,7 +42,7 @@ function prompt() {
 
 		connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [answer.ID], function(error, item, fields) {
 			if (error) throw error;
-			if (answer.Quantity > item[0].stock_quantity) {
+			if (answer.Quantity > item[0].stock_quantity || item[0].stock_quantity === 0) {
 				console.log("Insufficient quantity!");
 				return;
 
@@ -44,8 +56,7 @@ function prompt() {
 }
 
 function inquiry(id, answerQ, initialQ) {
-
-
+		console.log("Proccessing transaction...");
 	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [initialQ -= answerQ, id], function(error, newQ) {
 		console.log("Success!");
 	});
@@ -54,18 +65,6 @@ function inquiry(id, answerQ, initialQ) {
 
 };
 
-function sql() {
-	console.log("Accessing database...");
-	connection.connect();
-
-	connection.query('SELECT * FROM bamazon.products', function(error, results, fields) {
-		if (error) throw error;
-		for (i = 0; i < results.length; i++) {
-			console.log("ID #: " + results[i].item_id + " Item: " + results[i].product_name + " Department: " + results[i].department_name + " Price: " + results[i].price + " Quantity: " + results[i].stock_quantity);
-		}
-
-	});
-}
 
 
 
