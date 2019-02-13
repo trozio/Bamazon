@@ -8,18 +8,18 @@ let connection = mysql.createConnection({
 	database: 'bamazon'
 });
 
-inquirer.prompt([
-	{
-		name: "Actions",
-		message:"Choose an option: ",
-		type: "list",
-		choices: ["View products for sale", "View low inventory", "Add to inventory", "Add new product"]
-	}
-]).then(answer => {
-	if(answer.Actions === "View products for sale"){
+inquirer.prompt([{
+	name: "Actions",
+	message: "Choose an option: ",
+	type: "list",
+	choices: ["View products for sale", "View low inventory", "Add to inventory", "Add new product"]
+}]).then(answer => {
+
+	if (answer.Actions === "View products for sale") {
 		showItems();
 	}
-	if(answer.Actions === "View low inventory"){
+
+	if (answer.Actions === "View low inventory") {
 
 		console.log("Accessing database...");
 		connection.connect();
@@ -31,54 +31,39 @@ inquirer.prompt([
 			}
 
 		});
-
-
 	}
-	if(answer.Actions === "Add to inventory"){
+
+	if (answer.Actions === "Add to inventory") {
 		console.log("Accessing database...");
 
+		inquirer.prompt([{
+				name: "ID",
+				message: "Please input the ID of the item you would like to add more of: ",
+				type: "input"
+			},
+			{
+				name: "Quantity",
+				message: "How many would you like to add?",
+				type: "input"
+			}
 
+		]).then(addAnswer => {
 
+			console.log("Accessing database...");
 
-			inquirer.prompt([
-				{
-					name: "ID",
-					message: "Please input the ID of the item you would like to add more of: ",
-					type: "input"
-				},
-				{
-					name: "Quantity",
-					message: "How many would you like to add?",
-					type: "input"
-				}
-			]).then( addAnswer => {
-
-				console.log("Accessing database...");
-
-				connection.connect();
-				connection.query('SELECT * FROM bamazon.products WHERE item_id = ?',[addAnswer.ID] , function(error, results, fields) {
-					if (error) throw error;
-addI(addAnswer.ID, addAnswer.Quantity, results[0].stock_quantity);
-console.log("ID #: " + results[0].item_id + " Item: " + results[0].product_name + " Department: " + results[0].department_name + " Price: " + results[0].price + " Quantity: " + results[0].stock_quantity);
+			connection.connect();
+			connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [addAnswer.ID], function(error, results, fields) {
+				if (error) throw error;
+				addI(addAnswer.ID, addAnswer.Quantity, results[0].stock_quantity);
+				console.log("ID #: " + results[0].item_id + " Item: " + results[0].product_name + " Department: " + results[0].department_name + " Price: " + results[0].price + " Quantity: " + results[0].stock_quantity);
 
 			});
-
-
-
-
-
-			})
-
-
-
-
-
-
+		})
 	}
-	if(answer.Actions === "Add new product"){
 
-		inquirer.prompt([
-			{
+	if (answer.Actions === "Add new product") {
+
+		inquirer.prompt([{
 				message: "What item would you like to add?",
 				name: "Item",
 				type: "input"
@@ -86,7 +71,7 @@ console.log("ID #: " + results[0].item_id + " Item: " + results[0].product_name 
 			{
 				message: "Which department?",
 				name: "Department",
-				type:"input"
+				type: "input"
 			},
 			{
 				message: "At what price?",
@@ -100,26 +85,23 @@ console.log("ID #: " + results[0].item_id + " Item: " + results[0].product_name 
 			}
 		]).then(inputs => {
 
-
-
 			connection.query('INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES (?, ?, ?, ?)', [inputs.Item, inputs.Department, inputs.Price, inputs.Quantity], function(error, results, fields) {
 				if (error) throw error;
 
-		})
+			})
 
-
-		showItems();
-	});
+			showItems();
+		});
 
 	}
 })
 
-function showItems(){
+function showItems() {
 
 	console.log("Accessing database...");
-	
 
-	connection.query('SELECT * FROM bamazon.products', function(error, results, fields) {
+
+	connection.query('SELECT * FROM bamazon.products', function(error, results) {
 		if (error) throw error;
 		for (i = 0; i < results.length; i++) {
 			console.log("ID #: " + results[i].item_id + " Item: " + results[i].product_name + " Department: " + results[i].department_name + " Price: " + results[i].price + " Quantity: " + results[i].stock_quantity);
@@ -128,9 +110,7 @@ function showItems(){
 	});
 }
 
-
-
-function addI(id, q, sq){
+function addI(id, q, sq) {
 	console.log(q);
 	console.log(sq);
 	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [q += sq, id], function(error, item, fields) {

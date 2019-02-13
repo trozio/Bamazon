@@ -8,7 +8,12 @@ let connection = mysql.createConnection({
 	database: 'bamazon'
 });
 
+prompt();
+showItems();
+
+function showItems(){
 console.log("Accessing database...");
+
 connection.connect();
 
 connection.query('SELECT * FROM bamazon.products', function(error, results, fields) {
@@ -18,9 +23,8 @@ connection.query('SELECT * FROM bamazon.products', function(error, results, fiel
 	}
 
 });
+}
 
-
-prompt();
 
 function prompt() {
 	inquirer.prompt([{
@@ -56,20 +60,14 @@ function prompt() {
 }
 
 function inquiry(id, answerQ, initialQ) {
-		console.log("Proccessing transaction...");
+	console.log("Proccessing transaction...");
 	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [initialQ -= answerQ, id], function(error, newQ) {
 		console.log("Success!");
 	});
 	showItem(id);
-
+console.log("Total cost: " + (answerQ * initialQ));
 
 };
-
-
-
-
-
-
 
 function showItem(newId) {
 	connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [newId], function(error, newItem) {
@@ -78,5 +76,5 @@ function showItem(newId) {
 		console.log("ID #: " + newItem[0].item_id + " Item: " + newItem[0].product_name + " Department: " + newItem[0].department_name + " Price: " + newItem[0].price + " Quantity: " + newItem[0].stock_quantity);
 
 	});
-	connection.end();
+
 }
