@@ -89,6 +89,7 @@ inquirer.prompt([{
 				if (error) throw error;
 
 			})
+			console.log("Item added!");
 
 			showItems();
 		});
