@@ -51,21 +51,22 @@ function prompt() {
 				return;
 
 			}
-			let q = item[0].stock_quantity;
-			inquiry(answer.ID, answer.Quantity, q);
+
+			inquiry(answer.ID, answer.Quantity, item[0].stock_quantity, item[0].price);
 		});
 
 
 	});
 }
 
-function inquiry(id, answerQ, initialQ) {
+function inquiry(id, answerQ, initialQ, p) {
 	console.log("Proccessing transaction...");
 	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [initialQ -= answerQ, id], function(error, newQ) {
 		console.log("Success!");
 	});
 	showItem(id);
-console.log("Total cost: " + (answerQ * initialQ));
+
+console.log("Total cost: " + (answerQ * p));
 
 };
 
