@@ -55,7 +55,7 @@ inquirer.prompt([{
 			connection.query('SELECT * FROM bamazon.products WHERE item_id = ?', [addAnswer.ID], function(error, results, fields) {
 				if (error) throw error;
 				addI(addAnswer.ID, addAnswer.Quantity, results[0].stock_quantity);
-				console.log("ID #: " + results[0].item_id + " Item: " + results[0].product_name + " Department: " + results[0].department_name + " Price: " + results[0].price + " Quantity: " + results[0].stock_quantity);
+
 
 			});
 		})
@@ -112,12 +112,13 @@ function showItems() {
 }
 
 function addI(id, q, sq) {
-	console.log(q);
-	console.log(sq);
-	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [q += sq, id], function(error, item, fields) {
+
+	connection.query("UPDATE products SET stock_quantity = ? WHERE item_id = ?", [+q + +sq, id], function(error, item, fields) {
 		if (error) throw error;
 
+		console.log("Quantity updated!");
 
+showItems();
 	});
 
 }
